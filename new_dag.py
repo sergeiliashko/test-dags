@@ -11,40 +11,40 @@ class AppslfyerToS3Operator(BaseOperator):
         'to_date',
     ]
     @apply_defaults
-        def __init__(
-                self,
-                api_key: str,
-                s3_conn_id: str,
-                report_type: str, # installs/events
-                store_id: str,
-                from_date: str,
-                to_date: str,
-                timezone: Optional[str] = "UTC"
-                **kwargs) -> None:
-            super().__init__(**kwargs)
-            self.api_key = api_key
-            self.s3_conn_id = s3_conn_id
-            self.report_type = report_type
-            self.store_id = store_id
-            self.from_date = from_date
-            self.to_date = to_date
-            self.timezone = timezone
+    def __init__(
+            self,
+            api_key: str,
+            s3_conn_id: str,
+            report_type: str, # installs/events
+            store_id: str,
+            from_date: str,
+            to_date: str,
+            timezone: Optional[str] = "UTC"
+            **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.api_key = api_key
+        self.s3_conn_id = s3_conn_id
+        self.report_type = report_type
+        self.store_id = store_id
+        self.from_date = from_date
+        self.to_date = to_date
+        self.timezone = timezone
 
-        def execute(self, context):
-            APPSFLYER_HOST = "https://hq.appsflyer.com"
-            API_VERSION = "v5"
-            APPSFLYER_ENDPOINT = f"export/{self.store_id}/{self.report_type}_report/{API_VERSION}"
-            data = {'api_token':self.api_key,"from":self.from_date,"to":self.to_date,"timezone":self.timezone}
-            data_date = datetime.fromisoformat(self.from_date)
-            with requests.get(f"{APPSFLYER_HOST}/{APPSFLYER_ENDPOINT}", params=data, stream=True) as r:
-                r.raise_for_status()
-                with tempfile.TemporaryFile() as temp_file:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        temp_file.write(chunk)
-                    hook = airflow.hooks.S3_hook.S3Hook(s3_conn_id)
-                    hook.load_file(filename=temp_file.name,
-                            key=f"appsflyer/{self.store_id}/{self.report_type}/{data_date.strftime("%Y")}/{data_date.strftime("%Y%m")}/{self.store_id}-{self.report_type}_{data_date.strftime("%Y_%m_%d")}.csv",
-                            bucket_name="zif-spaces-1")
+    def execute(self, context):
+        APPSFLYER_HOST = "https://hq.appsflyer.com"
+        API_VERSION = "v5"
+        APPSFLYER_ENDPOINT = f"export/{self.store_id}/{self.report_type}_report/{API_VERSION}"
+        data = {'api_token':self.api_key,"from":self.from_date,"to":self.to_date,"timezone":self.timezone}
+        data_date = datetime.fromisoformat(self.from_date)
+        with requests.get(f"{APPSFLYER_HOST}/{APPSFLYER_ENDPOINT}", params=data, stream=True) as r:
+            r.raise_for_status()
+            with tempfile.TemporaryFile() as temp_file:
+                for chunk in r.iter_content(chunk_size=8192):
+                    temp_file.write(chunk)
+                hook = airflow.hooks.S3_hook.S3Hook(s3_conn_id)
+                hook.load_file(filename=temp_file.name,
+                        key=f"appsflyer/{self.store_id}/{self.report_type}/{data_date.strftime("%Y")}/{data_date.strftime("%Y%m")}/{self.store_id}-{self.report_type}_{data_date.strftime("%Y_%m_%d")}.csv",
+                        bucket_name="zif-spaces-1")
 
 
 args = {
