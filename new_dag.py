@@ -43,7 +43,7 @@ class AppslfyerToS3Operator(BaseOperator):
                     temp_file.write(chunk)
                 hook = airflow.hooks.S3_hook.S3Hook(s3_conn_id)
                 hook.load_file(filename=temp_file.name,
-                        key=f"appsflyer/{self.store_id}/{self.report_type}/{data_date.strftime("%Y")}/{data_date.strftime("%Y%m")}/{self.store_id}-{self.report_type}_{data_date.strftime("%Y_%m_%d")}.csv",
+                        key=f'appsflyer/{self.store_id}/{self.report_type}/{data_date.strftime("%Y")}/{data_date.strftime("%Y%m")}/{self.store_id}-{self.report_type}_{data_date.strftime("%Y_%m_%d")}.csv',
                         bucket_name="zif-spaces-1")
 
 
