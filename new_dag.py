@@ -46,7 +46,7 @@ class AppslfyerToS3Operator(BaseOperator):
         data_date = datetime.fromisoformat(self.from_date)
         with requests.get(f"{APPSFLYER_HOST}/{APPSFLYER_ENDPOINT}", params=data, stream=True) as r:
             r.raise_for_status()
-            with tempfile.TemporaryFile() as temp_file:
+            with tempfile.NamedTemporaryFile() as temp_file:
                 for chunk in r.iter_content(chunk_size=8192):
                     temp_file.write(chunk)
                 hook = S3Hook(self.s3_conn_id)
