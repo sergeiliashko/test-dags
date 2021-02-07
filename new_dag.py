@@ -14,6 +14,7 @@ import requests
 
 class AppslfyerToS3Operator(BaseOperator):
     template_fields = [
+        'api_key',
         'from_date',
         'to_date',
     ]
@@ -62,7 +63,7 @@ args = {
 with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=args) as dag:
     task_get_op = AppslfyerToS3Operator(
         task_id='pull_ios_installs',
-        api_key="{{ var.value.apikey }}",
+        api_key='{{ var.value.apikey }}',
         s3_conn_id="MyS3Conn",
         report_type="installs",
         store_id='id1501705341',
