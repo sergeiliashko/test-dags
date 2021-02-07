@@ -59,7 +59,7 @@ with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=
         s3_conn_id="MyS3Conn",
         report_type="installs",
         store_id='id1501705341',
-        from_date: '{{ ds }}',
-        to_date: '{{ ds }}',
+        from_date='{{ ds }}',
+        to_date='{{ ds }}',
         dag=dag,
     )
