@@ -49,7 +49,7 @@ class AppslfyerToS3Operator(BaseOperator):
             with tempfile.TemporaryFile() as temp_file:
                 for chunk in r.iter_content(chunk_size=8192):
                     temp_file.write(chunk)
-                hook = S3Hook(s3_conn_id)
+                hook = S3Hook(self.s3_conn_id)
                 hook.load_file(filename=temp_file.name,
                         key=f'appsflyer/{self.store_id}/{self.report_type}/{data_date.strftime("%Y")}/{data_date.strftime("%Y%m")}/{self.store_id}-{self.report_type}_{data_date.strftime("%Y_%m_%d")}.csv',
                         bucket_name="zif-spaces-1")
