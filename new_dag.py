@@ -71,3 +71,34 @@ with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=
         to_date='{{ ds }}',
         dag=dag,
     )
+    task_get_ios_events = AppslfyerToS3Operator(
+        task_id='pull_ios_events',
+        api_key='{{ var.value.apikey }}',
+        s3_conn_id="MyS3Conn",
+        report_type="events",
+        store_id='id1501705341',
+        from_date='{{ ds }}',
+        to_date='{{ ds }}',
+        dag=dag,
+    )
+    task_get_android_installs = AppslfyerToS3Operator(
+        task_id='pull_android_installs',
+        api_key='{{ var.value.apikey }}',
+        s3_conn_id="MyS3Conn",
+        report_type="installs",
+        store_id='ru.sokolov.android',
+        from_date='{{ ds }}',
+        to_date='{{ ds }}',
+        dag=dag,
+    )
+
+    task_get_android_events = AppslfyerToS3Operator(
+        task_id='pull_android_installs',
+        api_key='{{ var.value.apikey }}',
+        s3_conn_id="MyS3Conn",
+        report_type="events",
+        store_id='ru.sokolov.android',
+        from_date='{{ ds }}',
+        to_date='{{ ds }}',
+        dag=dag,
+    )
