@@ -57,10 +57,12 @@ class AppslfyerToS3Operator(BaseOperator):
 
 args = {
     'owner': 'airflow',
-    "start_date": datetime(2021, 1, 27),
-    "end_date": datetime(2021, 1, 27),
+    "start_date": datetime(2021, 1, 1),
+    'depends_on_past': False,
 }
-with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=args) as dag:
+with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=args, tags=['appsflyer','sokolov']) as dag:
+    dag.doc_md ="### Sokolov initial data pull from appsflyer"
+
     task_get_op = AppslfyerToS3Operator(
         task_id='pull_ios_installs',
         api_key='{{ var.value.apikey }}',
@@ -71,6 +73,13 @@ with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=
         to_date='{{ ds }}',
         dag=dag,
     )
+    task_get_op.doc_md = """\
+            #### Task Documentation
+        You can document your task using the attributes `doc_md` (markdown),
+        `doc` (plain text), `doc_rst`, `doc_json`, `doc_yaml` which gets
+        rendered in the UI's Task Instance Details page.
+        ![img](http://montcs.bloomu.edu/~bobmon/Semesters/2012-01/491/import%20soul.png)
+        """
     task_get_ios_events = AppslfyerToS3Operator(
         task_id='pull_ios_events',
         api_key='{{ var.value.apikey }}',
