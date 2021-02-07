@@ -93,7 +93,7 @@ with DAG('pull_sokolov_from_trackers', schedule_interval='@daily', default_args=
     )
 
     task_get_android_events = AppslfyerToS3Operator(
-        task_id='pull_android_installs',
+        task_id='pull_android_events',
         api_key='{{ var.value.apikey }}',
         s3_conn_id="MyS3Conn",
         report_type="events",
