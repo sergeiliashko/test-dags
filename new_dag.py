@@ -4,7 +4,12 @@ from airflow.providers.http.hooks.http import HttpHook
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from typing import Optional
 import tempfile
+
+from airflow.models import DAG
 from datetime import datetime
+from datetime import timedelta
+import time
+import os
 
 class AppslfyerToS3Operator(BaseOperator):
     template_fields = [
