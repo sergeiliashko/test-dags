@@ -10,6 +10,7 @@ from datetime import datetime
 from datetime import timedelta
 import time
 import os
+import requests
 
 class AppslfyerToS3Operator(BaseOperator):
     template_fields = [
