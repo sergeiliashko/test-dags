@@ -19,7 +19,7 @@ class AppslfyerToS3Operator(BaseOperator):
             store_id: str,
             from_date: str,
             to_date: str,
-            timezone: Optional[str] = "UTC"
+            timezone: Optional[str] = "UTC",
             **kwargs) -> None:
         super().__init__(**kwargs)
         self.api_key = api_key
