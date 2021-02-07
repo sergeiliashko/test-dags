@@ -4,6 +4,7 @@ from airflow.providers.http.hooks.http import HttpHook
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from typing import Optional
 import tempfile
+from datetime import datetime
 
 class AppslfyerToS3Operator(BaseOperator):
     template_fields = [
