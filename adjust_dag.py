@@ -69,6 +69,7 @@ class AdjustCohortToS3Operator(BaseOperator):
                     "cohort_period_filter":days_back,
                     "period":self.period,
                     "grouping":self.grouping,
+                    "human_readable_kpis":self.human_readable_kpis
                     }
             with requests.get(f"{ADJUST_HOST}/{ADJUST_ENDPOINT}", params=data, stream=True) as r:
                 r.raise_for_status()
