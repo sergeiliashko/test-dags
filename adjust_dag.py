@@ -55,9 +55,9 @@ class AdjustCohortToS3Operator(BaseOperator):
         ADJUST_ENDPOINT = f"kpis/{API_VERSION}/{self.app_token}/cohorts.csv"
         start_data_date = datetime.fromisoformat(self.from_date)
         current_data_date = datetime.fromisoformat(self.to_date)
-        days_to_look_back = self.cohort_lookback_period \
+        days_to_look_back = self.cohort_lookback_period+1 \
             if current_data_date - start_data_date > timedelta(days=self.cohort_lookback_period) \
-            else (current_data_date - start_data_date).days
+            else (current_data_date - start_data_date).days + 1
         for days_back in range(days_to_look_back):
             cur_target_date = (current_data_date - timedelta(days=days_back))
             data = {'user_token':self.user_token,
