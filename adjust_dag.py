@@ -12,6 +12,7 @@ import time
 import os
 import requests
 
+
 class AdjustCohortToS3Operator(BaseOperator):
     template_fields = [
         'app_token',
@@ -19,6 +20,7 @@ class AdjustCohortToS3Operator(BaseOperator):
         'from_date',
         'to_date',
     ]
+
     @apply_defaults
     def __init__(
             self,
@@ -31,7 +33,7 @@ class AdjustCohortToS3Operator(BaseOperator):
             event_kpis: str,
             cohort_lookback_period: int,
             timezone_offset: Optional[str] = "00:00",
-            period: Optional[str] = "day", #day/week/month,
+            period: Optional[str] = "day",
             human_readable_kpis: Optional[str] = "true",
             grouping: Optional[str] = "networks,campaigns,adgroups,creatives,countries,os_names,region,device_types,os_names,partners",
             **kwargs) -> None:
@@ -60,28 +62,31 @@ class AdjustCohortToS3Operator(BaseOperator):
             else (current_data_date - start_data_date).days + 1
         for days_back in range(days_to_look_back):
             cur_target_date = (current_data_date - timedelta(days=days_back))
-            data = {'user_token':self.user_token,
-                    "start_date":cur_target_date.strftime("%Y-%m-%d"),
-                    "end_date":cur_target_date.strftime("%Y-%m-%d"),
-                    "utc_offset":self.timezone_offset,
-                    "kpis":self.kpis,
-                    "event_kpis":self.event_kpis,
-                    "cohort_period_filter":days_back,
-                    "period":self.period,
-                    "grouping":self.grouping,
-                    "human_readable_kpis":self.human_readable_kpis
+            data = {'user_token': self.user_token,
+                    "start_date": cur_target_date.strftime("%Y-%m-%d"),
+                    "end_date": cur_target_date.strftime("%Y-%m-%d"),
+                    "utc_offset": self.timezone_offset,
+                    "kpis": self.kpis,
+                    "event_kpis": self.event_kpis,
+                    "cohort_period_filter": days_back,
+                    "period": self.period,
+                    "grouping": self.grouping,
+                    "human_readable_kpis": self.human_readable_kpis
                     }
-            with requests.get(f"{ADJUST_HOST}/{ADJUST_ENDPOINT}", params=data, stream=True) as r:
+            #with requests.get(f"{ADJUST_HOST}/{ADJUST_ENDPOINT}", params=data, stream=True) as r:
+            with requests.Session() as session:
+                session.mount('https://', HTTPAdapter(max_retries=Retry(total=5, backoff_factor=1, status_forcelist=[ 502, 503, 504 ])))
+                r = session.get(f"{ADJUST_HOST}/{ADJUST_ENDPOINT}", params=data, stream=True)
                 r.raise_for_status()
                 with tempfile.NamedTemporaryFile() as temp_file:
                     for chunk in r.iter_content(chunk_size=8192):
                         temp_file.write(chunk)
                     hook = S3Hook(self.s3_conn_id)
-                    hook.load_file(filename=temp_file.name,
-                            key=f'adjust/{self.app_token}/cohorts/{cur_target_date.strftime("%Y")}/{cur_target_date.strftime("%Y%m")}/{self.app_token}-cohorts_{cur_target_date.strftime("%Y_%m_%d")}_{self.timezone_offset}+{days_back}d.csv',
-                            bucket_name="zif-spaces-1")
-
-
+                    hook.load_file(
+                        filename=temp_file.name,
+                        key=f'adjust/{self.app_token}/cohorts/{cur_target_date.strftime("%Y")}/{cur_target_date.strftime("%Y%m")}/{self.app_token}-cohorts_{cur_target_date.strftime("%Y-%m-%d")}T00:00:00+{self.timezone_offset}_{days_back}d.csv',
+                        bucket_name="zif-spaces-1"
+                    )
 
 
 args = {
@@ -89,6 +94,8 @@ args = {
     "start_date": datetime(2021, 2, 1),
     'depends_on_past': False,
 }
+
+
 with DAG('pull_beru_ios_from_trackers', schedule_interval='@daily', default_args=args, tags=['adjust','beru']) as dag:
     dag.doc_md ="### Beru initial data pull from adjust"
 
