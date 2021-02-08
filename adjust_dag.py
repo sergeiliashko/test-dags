@@ -11,6 +11,9 @@ from datetime import timedelta
 import time
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 
 
 class AdjustCohortToS3Operator(BaseOperator):
