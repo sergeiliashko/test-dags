@@ -77,7 +77,7 @@ class AdjustCohortToS3Operator(BaseOperator):
                         temp_file.write(chunk)
                     hook = S3Hook(self.s3_conn_id)
                     hook.load_file(filename=temp_file.name,
-                            key=f'adjust/{self.app_token}/{self.report_type}/{cur_target_date.strftime("%Y")}/{cur_target_date.strftime("%Y%m")}/{self.app_token}-{self.report_type}_{cur_target_date.strftime("%Y_%m_%d")}_{self.timezone_offset}+{days_back}d.csv',
+                            key=f'adjust/{self.app_token}/cohorts/{cur_target_date.strftime("%Y")}/{cur_target_date.strftime("%Y%m")}/{self.app_token}-{cohorts}_{cur_target_date.strftime("%Y_%m_%d")}_{self.timezone_offset}+{days_back}d.csv',
                             bucket_name="zif-spaces-1")
 
 
